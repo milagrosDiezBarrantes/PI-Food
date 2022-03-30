@@ -6,15 +6,41 @@ import axios from 'axios';
 export function getRecipes(){
     return async function(dispatch) {
         dispatch({type: 'Loading'})
-        const json = await axios.get("https://food-app-juth.herokuapp.com/recipes")
+        let json = await axios.get("/recipes")
         return dispatch({
             type: 'getRecipes',
             payload: json.data
         })
     }
 };
-//todos los tipos de dietas
-export function getAllTypes(){
+export function getRecipesName(name){
+    return async function(dispatch){
+        dispatch({type: 'Loading'})
+        let json = await axios ('/recipes?name=' + name)
+        return dispatch({
+            type: 'getRecipesName',
+            payload: json.data
+        })
+    }
+};
+//filtrar por ID
+export function getRecipesId(id){
+    return async function(dispatch){
+        if(id === 'clear'){
+            dispatch({type: 'getRecipesId',
+            payload: 'clear'})
+        } else{
+            dispatch({type: 'Loading'})
+        let json = await axios ('/recipes/' + id)
+            return dispatch({
+                type: 'getRecipesId',
+                payload: json.data
+            })
+        }
+    }    
+};
+//TODOS los tipos de dietas
+export function getTypes(){
     return async function (dispatch){
         let json = await axios ('/types')
         return dispatch({
@@ -24,62 +50,43 @@ export function getAllTypes(){
     }
 };
 //filtro por dieta
-export function filterByTypes(){
-    return async (dispatch) => {
-        try {
-          const json = await axios.get("https://food-app-juth.herokuapp.com/types");
-          return dispatch({
-            type: "filterByTypes",
-            payload: json.data,
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      };
-    };
-
-export function getRecipesByName(name){
-    return async function(dispatch){
-        dispatch({type: 'Loading'})
-        const json = await axios.get(
-            `https://food-app-juth.herokuapp.com/recipes?name=${name}`
-          );
-        return dispatch({
-            type: 'getRecipesByName',
-            payload: json.data
-        })
+export function filterTypes(payload){
+    return{
+        type: 'filterTypes',
+        payload
     }
-};
-
+}
+//post Recipe - crear
 export function createRecipe (payload){
     return async function(dispatch){
-        const recipe = await axios.post("https://food-app-juth.herokuapp.com/recipe", payload);
+        const pokemon = await axios.post('/recipes', payload)
         return dispatch({
-            type: 'postRecipe',
-            payload: recipe
+            type: 'createRecipe',
+            payload: pokemon
         })
     }
 }
 
-//filtrar por ID
-export function getRecipesById(id){
-    return async function(dispatch){
-        if(id === 'clear'){
-            dispatch({type: 'getRecipesById',
-            payload: 'clear'})
-        } else{
-            dispatch({type: 'Loading'})
-            const json = await axios.get(
-                `https://food-app-juth.herokuapp.com/recipes/${id}`
-              );
-        return dispatch({
-            type: 'getRecipesById',
-            payload: json.data
-        })
-    }
-        }
-        
+export function cleanDetails (){
+    return {
+        type: "getDetails",
+        payload: [],
+      };
 };
+
+export function orderName(payload){
+    return{
+        type: 'orderName',
+        payload
+    }
+}
+//por puntuación
+export function orderScore (payload){
+    return{
+        type: 'orderScore',
+        payload
+    }
+}
 //para eliminar
 export function deleteRecipe(id){
     return async function(dispatch){
@@ -91,22 +98,4 @@ export function deleteRecipe(id){
 
 }
 
-export function orderByScore (payload) {
-    return {
-        type: 'orderByScore',
-        payload
-    }
-}
 
-export function getDetail(payload) {
-    return async function (dispatch) {
-        try {
-            const json = await axios.get(`http://localhost:3001/recipes/${payload}`)
-            return dispatch({
-                type: 'getDetail',
-                payload: json.data
-            })
-        } catch (error) {
-        }
-    }
-}
