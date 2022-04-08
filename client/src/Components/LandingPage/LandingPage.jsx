@@ -29,8 +29,7 @@ function LandingPage(){
         top: 170px;
     `;
 
-    return (
-        
+    return (  
         <ContainerLand>
             <BlockLand>
                 <H1Land>Las mejores recetas <br/> en un solo lugar</H1Land>
@@ -67,7 +66,7 @@ function Button(){
           color: #1B2631;
           text-shadow: 0 1px 1px rgba(0,0,0,0.5);
           background-color: none;
-          box-shadow: 0 0 20px #AA76EE, 0 0 40px #AA76EE, 0 0 80px #AA76EE;
+          box-shadow: 0 0 20px #E5F9E3, 0 0 40px #E5F9E3, 0 0 80px #E5F9E3;
           transition: 1.2s;
           border: none;
       }
@@ -82,15 +81,10 @@ function Button(){
   `
 
   return(
-      
-      
       <MyButtonLand>
           <StyledLinkLand to='/Home'>Ingresar</StyledLinkLand>
-      </MyButtonLand>
-      
+      </MyButtonLand>   
   )  
      
 };
-
-
 export default LandingPage;

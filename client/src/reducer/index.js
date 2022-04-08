@@ -1,87 +1,87 @@
-import { Action } from "history"
 
 const initialState = {
     recipes: [],
     allRecipes: [],
     diets: [],
-    detail: []
+    detail: [],
+    showedRecipes: [], //recetas mostradas
+    isLoading: true  
 }
 
-function reducer (state = initialState, {type, payload}){
-    switch(type){
+      //genero la llamada asincrona, en éste caso que me pase todo lo que le pido: el estado, las recetas, la copia de recetas y elfiltrado
+function reducer (state=initialState, action) {
+    switch(action.type) {
         case 'getRecipes':
-            return{
+            return {
                 ...state,
-                allRecipes: payload,
-                copyRecipes: payload,
-                loading: false
+                showedRecipes: action.payload,
+                allRecipes: action.payload,
+                isLoading: action.loading,
             }
-        case 'getTypes':
-            return{
-                ...state, 
-                types: payload
-            }
-            case 'getRecipesByName':
-                return{
-                    ...state, 
-                    copyRecipes: payload, 
-                    loading: false}
-            case 'getRecipesById':
-                if(payload === 'clear'){
-                    return {...state, 
-                        details: []
-                    }
-                }return{...state, details: payload, loading: false}
-            case 'filterByTypes':
-                const allTypes = state.allRecipes
-                const typesFilter = payload === 'all' ? allTypes : allTypes.filter(recipe => 
-                    payload === recipe.type
-                    //filter recorre cada uno de las propiedades   
-                   );
-                return{...state, copyRecipes: typesFilter}
-            
-            case 'filterByType':
-                const allRecipesArray = state.allRecipes;
-                const filterType = payload === 'createdInDb' ? allRecipesArray.filter(recipe => 
-                    recipe.createdInDb) : allRecipesArray.filter(recipe=> !recipe.createdInDb)
-                return {...state, copyRecipes: payload === 'All' ? allRecipesArray : filterType}
-           
+                case 'getRecipesId':
+                 return {
+                     ...state,
+                     detail: action.payload,
+                 } 
+                 
+
+                 case 'getTypes':
+                     return{
+                         ...state,
+                         diets: action.payload
+                     } 
+                 case 'getRecipesByName':
+                     return {
+                         ...state,
+                         showedRecipes: action.payload,
+                }
+                 case 'postRecipe':
+                 return {
+                  ...state,
+                 };
+
+                 case 'filterByTypes':
+                    const allDiets = state.allRecipes;
+                    const filterTypes =
+                      action.payload === "all"
+                        ? allDiets
+                        : allDiets.filter((r) => r.diet.includes(action.payload));
+                    return {
+                      ...state,
+                      showedRecipes: filterTypes,
+                };
+             
             case 'orderByName':
-                let orderArray = payload === "ascendent" ? state.copyRecipes.sort(function(a,b){
-                    if(a.name > b.name) return 1;
-                    if(b.name > a.name) return -1;
-                    return 0; 
-                }) :
-                state.copyRecipes.sort(function(a,b){
-                    if(a.name > b.name) return -1;
-                    if(b.name > a.name) return 1;
-                    return 0;
-                });
-                return {...state, copyRecipes: orderArray}
-            case 'orderByPoints':
-                let orderPointArray = state.copyRecipes;
-                payload === 'ascendent' ? state.copyRecipes.sort(function(a,b){
-                    if(a.ponit > b.ponit) return 1;
-                    if(b.ponit > a.ponit) return -1;
-                    return 0;
-                }) :
-                state.copyRecipes.sort(function(a,b){
-                    if(a.ponit > b.ponit) return -1;
-                    if(b.ponit > a.ponit) return 1;
-                    return 0;
-                });
-                return {...state, copyRecipes: orderPointArray}
-            case 'postRecipe':
-                return{...state}
-            case 'deleteRecipe':
-                return{...state}
-            case 'getDetail':
-                return{...state, detail: Action.payload}
-            case 'Loading':{
-                return {...state, loading: true}
+                const orderName =
+                action.payload === "all"
+                  ? state.allRecipes
+                  : action.payload === "asc"
+                  ? state.showedRecipes.sort((a, b) => {
+                      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                    })
+                  : state.showedRecipes.sort((a, b) => {
+                      return b.name.toLowerCase().localeCompare(a.name.toLowerCase());
+                    });
+              return {
+                ...state,
+                showedRecipes: orderName,
+              };
+
+              case "orderSpoonacularScore":
+                const orderSpoonacularScore =
+                  action.payload === "all"
+                    ? state.allRecipes
+                    : action.payload === "high"
+                    ? state.showedRecipes.sort((a, b) => b.score - a.score)
+                    : state.showedRecipes.sort((a, b) => a.score - b.score);
+                return {
+                  ...state,
+                  showedRecipes: orderSpoonacularScore,
+                };
+          
+              default:
+                return { ...state };
             }
-            default: return state
-        }
-    };
+};
 
 export default reducer;

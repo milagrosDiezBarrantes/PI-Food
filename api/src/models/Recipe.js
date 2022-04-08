@@ -4,6 +4,10 @@ const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   // defino el modelo
   sequelize.define("recipe", {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -12,15 +16,12 @@ module.exports = (sequelize) => {
     image: {
       type: DataTypes.TEXT,
     },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+  
     summary: { //resumen
       type: DataTypes.STRING,
       allowNull: false,
     },
-    spoonacularScore: { //puntuacion
+    score: { //puntuacion
       type: DataTypes.INTEGER,
     },
     healthScore: {  //puntuación saludable
@@ -28,10 +29,13 @@ module.exports = (sequelize) => {
     },
 
     //analyzedInstructions.steps
-    steps: {
+    step: {
       type: DataTypes.TEXT,
     },
     
+    dishType: { 
+      type: DataTypes.STRING,
+    },
         //agregamos el boleano que indica si es una receta fue creada por el usuario
     createdInDb: {
       type: DataTypes.BOOLEAN,

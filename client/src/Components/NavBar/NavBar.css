@@ -1,0 +1,71 @@
+.select_navbar{
+    border: none ;
+    padding:3px 15px ;
+    border-radius:10px ;
+    background: #332b24a0;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #383631ca, #3b322a94);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #383a3ad6, #d3e8de3b);   
+    color: #ffffff;
+    margin-right:15px;
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    font-family: 'Roboto', sans-serif;
+}
+
+.select_navbar:hover{
+    cursor: pointer;
+         color: #1B2631;
+        text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+        background-color: #1b6844;
+        box-shadow: 0 0 20px #E5F9E3, 0 0 40px #E5F9E3, 0 0 80px #E5F9E3;
+        transition: 1.2s;
+}
+
+.navbar_container{
+    width:100vw;
+    height:45px ;
+    background: #0e3a3aa0;  /* fallback for old browsers */
+     display:flex ;
+    align-items:center ;
+    justify-content:space-around;
+    top:0 ;
+    position:fixed ;
+    z-index:2 ;
+    margin: 0px ;
+    box-shadow: 0 5px 30px rgb(19, 90, 72);
+}
+
+.option_navbar{
+    background-color:#1f3b36;
+    color:#dadada;
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+        font-family: 'Roboto', sans-serif;
+}
+
+.navbar_label{
+    color: white;
+    display:inline;
+    margin-right:10px;
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+        font-family: 'Roboto', sans-serif;
+    letter-spacing: 2px;
+}
+/*
+.navbar_button{
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    font-family: 'Roboto', sans-serif;  
+    border-radius:5px ;
+    background-color:#F7F7F7 ;
+    padding:4px 6px;
+    color:#104442 ;
+}
+
+.navbar_button:hover{
+    color: white;
+    background-color: #223837;
+    box-shadow: 0 0 10px #F7F7F7, 0 0 20px #F7F7F7, 0 0 0px #F7F7F7;
+    transition: 1.2s;
+    border: none;
+    cursor:pointer ;
+    padding: 5px 12px ;
+}*/
+

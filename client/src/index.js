@@ -3,11 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+//importo
 import {Provider} from 'react-redux';
 import {store} from './store';
-//import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
+
+
+//import dotenv from 'dotenv';
+//dotenv.config();
 
 
 ReactDOM.render(

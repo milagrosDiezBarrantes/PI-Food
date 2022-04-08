@@ -1,44 +1,242 @@
 const router = require('express').Router();
-const {getAllRecipes} = require("./Repositories/getAllRecipes");
-const { Recipe, Type } = require("../db");
+const { Recipe, Diet } = require("../db");
 const { YOUR_API_KEY } = process.env
+const axios = require("axios");
 
 
-//cambiar de router a const con el nombre que quiera poner
-router.get('/', async (req, res) => {
-    const {name} = req.query;
-    const totalRecipes = await getAllRecipes();
-    if(name){
-        const recipeName = totalRecipes.filter(element => 
-            element.name.toLowerCase().includes(name.toLowerCase()))
-            if(recipeName.length){
-                return res.status(200).send(recipeName);
-            } return res.send({error: 'Receta no encontrada'})
-    } else {
-        try{
-            return res.status(200).send(totalRecipes);
-        } catch(error){
-            res.send(error)
-        }
+
+// GET /recipes?name="..."
+// Obtener un listado de las recetas que contengan la palabra ingresada como query parameter
+// Si no existe ninguna receta mostrar un mensaje adecuado
+
+const apiRecipes = async () => {
+    try {
+      const json = await axios.get(
+        `https://api.spoonacular.com/recipes/complexSearch?apiKey=${YOUR_API_KEY}&addRecipeInformation=true&number=100`
+      );
+      const recipe = json.data.results?.map((r) => {
+        return {
+          id: r.id,
+          image: r.image,
+          name: r.title,
+          diet: r.diets,
+          score: r.score,
+          summary: r.summary,
+          step: r.step
+         
+        };
+      });
+      // console.log("recipe", recipe);
+      return recipe;
+    } catch (error) {
+      console.log(error);
     }
-});
+  };
+   
+  
+  const dbRecipes = async () => {
+    try {
+      const db = await Recipe.findAll({
+        include: {
+          model: Diet,
+          attributes: ["name"],
+          through: {
+            attributes: [],
+          },
+        },
+      });
 
-router.get('/:id', async(req, res) => {
-    const {id} = req.params;
-    const totalRecipes = await getAllRecipes();
-    if(id){
-        const recipeId = await totalRecipes.filter(recipId => recipId.id == id);
-            if(recipeId.length){
-                try {
-                     return res.status(200).send(recipeId)
-                    } catch (error) {
-                        res.send(error)
-                       }
-            }
+      const findRecipe = db.map((n) => ({
+        id: n.id,
+        image: n.image,
+        name: n.name,
+        diet: n.diets.map((d) => d.name),
+        score: n.score,
+        summary: n.summary,
+        createdInDb: n.createdInDb,
+      }));
+      return findRecipe;
+    } catch (error) {
+      console.log(error);
     }
-});
+  };
 
 
+  const allRecipes = async () => {
+    try {
+      const api = await apiRecipes();
+      const db = await dbRecipes();
+      const all = [...api, ...db];
+      return all;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  const apiName = async (name) => {
+    try {
+      return await axios
+        .get(
+          `https://api.spoonacular.com/recipes/complexSearch?apiKey=${YOUR_API_KEY}&addRecipeInformation=true&number=100`
+        )
+        .then((res) => {
+          const names = res.data.results.map((r) => {
+            return {
+              id: r.id,
+              image: r.image,
+              name: r.title,
+              diet: r.diets,
+              score: r.score,
+              healthScore: healthScore,
+              summary: r.summary,
+            };
+          });
+          // console.log("namesss", names);
+          return names.filter((n) =>
+            n.name.toLowerCase().includes(name.toLowerCase())
+          );
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+
+
+  const dbName = async (name) => {
+    // console.log("pato", name);
+    try {
+      const names = await Recipe.findAll({
+        where: { name: { [Op.iLike]: "%" + name + "%" } },
+        include: {
+          model: Diet,
+          attributes: ["name"],
+          through: {
+            attributes: [],
+          },
+        },
+      });
+      const dbNames = names.map((n) => ({
+        id: n.id,
+        image: n.image,
+        name: n.name,
+        diet: n.diets.map((d) => d.name),
+        score: n.score,
+        summary: n.summary,
+        createdInDb: n.createdInDb,
+      }));
+      return dbNames;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+const allNames = async (name) => {
+    try {
+      const api = await apiName(name);
+      const db = await dbName(name);
+      const all = api.concat(db);
+      return all;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  router.get("/", async (req, res) => {
+    const { name } = req.query;
+    try {
+      const totalRecipes = await allRecipes();
+      if (!name) {
+        return res.send(totalRecipes);
+      } else if (name) {
+        const totalNames = await allNames(name);
+        return res.send(totalNames);
+      } else {
+        return res.status(404).json({ msg: "Recipe Not Found" });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  
+
+  const apiId = async (id) => {
+    try {
+      const api = await axios.get(
+        `https://api.spoonacular.com/recipes/${id}/information?apiKey=${YOUR_API_KEY}`
+      );
+      const detail = api.data;
+      return {
+        id: id,
+        image: detail.image,
+        name: detail.title,
+        diet: detail.diets,
+        summary: detail.summary,
+        score: detail.score,
+        healthScore: detail.healthScore,
+        steps: detail.steps,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  const dbId = async (id) => {
+    try {
+      const idDb = await Recipe.findByPk(id, {
+        include: {
+          model: Diet,
+          attributes: ["name"],
+          through: { attributes: [] },
+        },
+      });
+      return {
+        id: id,
+        image: idDb.image,
+        name: idDb.name,
+        score: idDb.score,
+        summary: idDb.summary,
+        healthScore: idDb.healthScore,
+        steps: idDb.steps,
+        createdInDb: idDb.createdInDb,
+        diet: idDb.diets.map((d) => d.name),
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  const allIds = async (id) => {
+    // console.log("manzana", id);
+    try {
+      if (id.includes("-")) {
+        const db = await dbId(id);
+        return db;
+      }
+      const api = await apiId(id);
+      return api;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  router.get("/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const ids = await allIds(id);
+      if (ids) {
+        return res.send(ids);
+      } else {
+        return res.status(404).json({ msg: "ID Not Found" });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  
+  module.exports = router;
 
 //creo una ruta para eliminar recetas
 router.delete('/:id', async(req, res)=>{
