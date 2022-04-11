@@ -4,7 +4,7 @@ const { Recipe, Diet } = require("../db");
 
 const router = Router();
 
-router.post("/recipe", async (req, res) => {
+router.post("/", async (req, res) => {
   const {
     name,
     image,

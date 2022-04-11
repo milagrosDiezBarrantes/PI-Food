@@ -15,18 +15,19 @@ const apiRecipes = async () => {
         `https://api.spoonacular.com/recipes/complexSearch?apiKey=${YOUR_API_KEY}&addRecipeInformation=true&number=100`
       );
       const recipe = json.data.results?.map((r) => {
-        return {
+       console.log(r);
+         return {
           id: r.id,
           image: r.image,
           name: r.title,
           diet: r.diets,
-          score: r.score,
+          score: r.weightWatcherSmartPoints,
           summary: r.summary,
-          step: r.step
+          step: r.instructions
          
         };
       });
-      // console.log("recipe", recipe);
+     //  console.log("recipe", recipe);
       return recipe;
     } catch (error) {
       console.log(error);
@@ -52,6 +53,7 @@ const apiRecipes = async () => {
         name: n.name,
         diet: n.diets.map((d) => d.name),
         score: n.score,
+        step: n.step,
         summary: n.summary,
         createdInDb: n.createdInDb,
       }));
@@ -61,8 +63,7 @@ const apiRecipes = async () => {
     }
   };
 
-
-  const allRecipes = async () => {
+ const allRecipes = async () => {
     try {
       const api = await apiRecipes();
       const db = await dbRecipes();
@@ -72,29 +73,29 @@ const apiRecipes = async () => {
       console.log(error);
     }
   };
-
-
+  
   const apiName = async (name) => {
     try {
       return await axios
         .get(
           `https://api.spoonacular.com/recipes/complexSearch?apiKey=${YOUR_API_KEY}&addRecipeInformation=true&number=100`
         )
-        .then((res) => {
+       .then((res) => {
           const names = res.data.results.map((r) => {
             return {
               id: r.id,
               image: r.image,
               name: r.title,
               diet: r.diets,
-              score: r.score,
-              healthScore: healthScore,
+              score: r.weightWatcherSmartPoints,
+              step: r.instructions,
+              healthScore: r.healthScore,
               summary: r.summary,
             };
           });
-          // console.log("namesss", names);
+         //  console.log("namesss", names);
           return names.filter((n) =>
-            n.name.toLowerCase().includes(name.toLowerCase())
+          n.name.toLowerCase().includes(name.toLowerCase())
           );
         });
     } catch (error) {
@@ -117,12 +118,14 @@ const apiRecipes = async () => {
           },
         },
       });
+      
       const dbNames = names.map((n) => ({
         id: n.id,
         image: n.image,
         name: n.name,
         diet: n.diets.map((d) => d.name),
         score: n.score,
+        step: n.step,
         summary: n.summary,
         createdInDb: n.createdInDb,
       }));
@@ -174,9 +177,9 @@ const allNames = async (name) => {
         name: detail.title,
         diet: detail.diets,
         summary: detail.summary,
-        score: detail.score,
+        score: detail.weightWatcherSmartPoints,
         healthScore: detail.healthScore,
-        steps: detail.steps,
+        steps: detail.instructions,
       };
     } catch (error) {
       console.log(error);
@@ -199,7 +202,7 @@ const allNames = async (name) => {
         score: idDb.score,
         summary: idDb.summary,
         healthScore: idDb.healthScore,
-        steps: idDb.steps,
+        steps: idDb.step,
         createdInDb: idDb.createdInDb,
         diet: idDb.diets.map((d) => d.name),
       };
@@ -214,10 +217,11 @@ const allNames = async (name) => {
       if (id.includes("-")) {
         const db = await dbId(id);
         return db;
-      }
-      const api = await apiId(id);
-      return api;
-    } catch (error) {
+        }else{
+        const api = await apiId(id);
+        return api;  
+        }
+      } catch (error) {
       console.log(error);
     }
   };
