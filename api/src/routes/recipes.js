@@ -34,7 +34,6 @@ const apiRecipes = async () => {
     }
   };
    
-  
   const dbRecipes = async () => {
     try {
       const db = await Recipe.findAll({
@@ -104,7 +103,6 @@ const apiRecipes = async () => {
   };
   
 
-
   const dbName = async (name) => {
     // console.log("pato", name);
     try {
@@ -140,27 +138,26 @@ const allNames = async (name) => {
       const api = await apiName(name);
       const db = await dbName(name);
       const all = api.concat(db);
-      return all;
+      if (db != null) return all;
+      return api;
     } catch (error) {
       console.log(error);
     }
   };
 
-
   router.get("/", async (req, res) => {
     const { name } = req.query;
     try {
       const totalRecipes = await allRecipes();
-      if (!name) {
-        return res.send(totalRecipes);
-      } else if (name) {
-        const totalNames = await allNames(name);
+      const totalNames = await allNames(name);
+      if (name) {
         return res.send(totalNames);
-      } else {
-        return res.status(404).json({ msg: "Recipe Not Found" });
-      }
+      } else{
+        return res.send(totalRecipes);
+      } 
+        
     } catch (error) {
-      console.log(error);
+      return res.status(404).json({ msg: "Recipe Not Found" });
     }
   });
   
@@ -242,16 +239,6 @@ const allNames = async (name) => {
   
   module.exports = router;
 
-//creo una ruta para eliminar recetas
-router.delete('/:id', async(req, res)=>{
-    try {
-        const {id} = req.params;
-        res.json(await Recipe.destroy({
-            where: {id}
-        }))
-    } catch (error) {
-        res.send(error);
-    }
-});
+
 
 module.exports = router;
